@@ -1,5 +1,5 @@
 import Router from 'koa-router';
-import { login } from '@/service/login'
+import { login } from '@/service/usr'
 
 const router = new Router({
   prefix: '/login'
