@@ -1,5 +1,5 @@
 import { Pool } from 'pg';
-import { Usr, UsrAuth } from '@/entity';
+import { Usr, UsrAuth, AuthUsr, Connection } from '@/entity';
 
 // code modified from https://node-postgres.com/guides/project-structure
 
@@ -46,12 +46,39 @@ const getClient = async()=>{
 
 const mapping = {
   insertUsr: async(usr: Usr)=>{
-    const res = await query(`insert into usr(name,avatar) values ($1,$2);`,[usr.name,usr.avatar]);
-    return res.rowCount;
+    const res = await query(`insert into usr(name,avatar) values ($1,$2) returning uid;`,[usr.name,usr.avatar]);
+    return res.rows[0] as number;
   },
   selectUsr: async(uid: number)=>{
     const res = await query(`select * from usr where uid=$1;`,[uid]);
     return res.rows[0] as Usr;
+  },
+  insertUsrAuth: async(v: UsrAuth)=>{
+    const res = await query(`insert into usrauth(uid,auth) values ($1,$2);`,[v.uid,v.auth]);
+    return res.rowCount;
+  },
+  selectUsrAuth: async(uid: number)=>{
+    const res = await query(`select * from usrauth where uid=$1;`,[uid]);
+    return res.rows[0] as UsrAuth;
+  },
+  insertAuthUsr: async(v: AuthUsr)=>{
+    const res = await query(`insert into authusr(type,identifier,token,uid) values ($1,$2,$3,$4);`,[v.type,v.identifier,v.token,v.uid]);
+    return res.rowCount;
+  },
+  selectAuthUsr: async(type: string, identifier: string)=>{
+    const res = await query(`select * from authusr where type=$1 and identifier=$2;`,[type,identifier]);
+    return res.rows[0] as AuthUsr;
+  },
+  insertConnection: async(v: Connection)=>{
+    const res = await query(
+      `insert into connection(uid,token,used,qty,"adQty","ovQty",spd,"cycleDays","nextCycleDate","expireDate","nextConnection",status,comment) values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13);`,
+      [v.uid,v.token,v.used,v.qty,v.adQty,v.ovQty,v.spd,v.cycleDays,v.nextCycleDate,v.expireDate,v.nextConnection,v.status,v.comment]
+    );
+    return res.rowCount;
+  },
+  selectConnection: async(uid: number)=>{
+    const res = await query(`select * from connection where uid=$1;`,[uid]);
+    return res.rows[0] as Connection;
   },
 };
 

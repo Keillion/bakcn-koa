@@ -10,9 +10,6 @@ router
     const usr = await mapping.selectUsr(JSON.parse(ctx.params.uid) as number);
     ctx.body = JSON.stringify(usr);
   })
-  .post('/login', async ctx=>{
-    ctx.body = "todo: try to login";
-  })
 ;
 
 export default router;

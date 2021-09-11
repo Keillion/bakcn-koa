@@ -1,5 +1,5 @@
 import Router from 'koa-router';
-import { mapping } from '@/db';
+import { login } from '@/service/login'
 
 const router = new Router({
   prefix: '/login'
@@ -8,10 +8,7 @@ const router = new Router({
 router
   .post('/', async ctx=>{
     const body = ctx.request.body;
-    if(!body.type){}
-    if(!body.type || !body.id || !body.token){ ctx.throw(500, "UserName or Password") }
-    const usr = await mapping.selectUsr(JSON.parse(ctx.params.uid) as number);
-    ctx.body = JSON.stringify(usr);
+    ctx.body = await login(body.type, body.identifier, body.token);
   })
 ;
 
