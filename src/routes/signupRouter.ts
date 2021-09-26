@@ -6,8 +6,13 @@ const router = new Router({
 });
 
 router
+  .use(async(ctx, next)=>{
+    console.log('before createusr')
+    await next();
+  })
   .post('/createusr', async ctx=>{
-    const body = ctx.body;
+    console.log('createusr')
+    const body = ctx.request.body;
     ctx.body = await signup(body.type, body.name, body.token);
   })
 ;

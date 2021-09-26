@@ -12,6 +12,7 @@ const pool = new Pool({
 });
 
 const query = async(text:string, params?:any[])=>{
+  console.log('execute query', { text, params });
   const start = Date.now();
   const res = await pool.query(text, params);
   const duration = Date.now() - start;
@@ -46,20 +47,34 @@ const getClient = async()=>{
 
 const mapping = {
   insertUsr: async(usr: Usr)=>{
-    const res = await query(`insert into usr(name,avatar) values ($1,$2) returning uid;`,[usr.name,usr.avatar]);
-    return res.rows[0] as number;
+    const res = usr.uid ?
+      await query(`insert into usr(uid,name,avatar) values ($1,$2,$3) returning uid;`,[usr.uid,usr.name,usr.avatar]) :
+      await query(`insert into usr(name,avatar) values ($1,$2) returning uid;`,[usr.name,usr.avatar]);
+    return JSON.parse(res.rows[0].uid) as number;
   },
-  selectUsr: async(uid: number)=>{
+  selectUsr: async(uid: number):Promise<Usr>=>{
     const res = await query(`select * from usr where uid=$1;`,[uid]);
-    return res.rows[0] as Usr;
+    if(res.rowCount){
+      const usr = res.rows[0];
+      usr.uid = JSON.parse(usr.uid);
+      return usr as Usr;
+    }else{
+      return null;
+    }
   },
   insertUsrAuth: async(v: UsrAuth)=>{
-    const res = await query(`insert into usrauth(uid,auth) values ($1,$2);`,[v.uid,v.auth]);
+    const res = await query(`insert into usrauth(uid,auth) values ($1,$2);`,[v.uid,JSON.stringify(v.auth)]);
     return res.rowCount;
   },
   selectUsrAuth: async(uid: number)=>{
     const res = await query(`select * from usrauth where uid=$1;`,[uid]);
-    return res.rows[0] as UsrAuth;
+    if(res.rowCount){
+      const usrAuth = res.rows[0];
+      usrAuth.uid = JSON.parse(usrAuth.uid);
+      return usrAuth as UsrAuth;
+    }else{
+      return null;
+    }
   },
   insertAuthUsr: async(v: AuthUsr)=>{
     const res = await query(`insert into authusr(type,identifier,token,uid) values ($1,$2,$3,$4);`,[v.type,v.identifier,v.token,v.uid]);
