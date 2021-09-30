@@ -8,6 +8,10 @@ export interface Usr {
   name: string,
   avatar: string,
 }
+// export function convertPgUsr(usr:any){
+//   usr.uid = JSON.parse(usr.uid);
+//   return usr as Usr;
+// };
 
 export interface UsrAuth {
   uid: number,
@@ -16,6 +20,10 @@ export interface UsrAuth {
     identifier: string,
   }[],
 }
+// export function convertPgUsrAuth(usrAuth:any){
+//   usrAuth.uid = JSON.parse(usrAuth.uid);
+//   return usrAuth as UsrAuth;
+// };
 
 export interface AuthUsr {
   type: string,
@@ -23,6 +31,10 @@ export interface AuthUsr {
   token: string,
   uid: number,
 }
+// export function convertPgAuthUsr(authUsr:any){
+//   authUsr.uid = JSON.parse(authUsr.uid);
+//   return usrAuth as UsrAuth;
+// };
 
 export interface Connection {
   uid: string,

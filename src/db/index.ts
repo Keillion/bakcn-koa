@@ -1,5 +1,9 @@
-import { Pool } from 'pg';
+import { Pool, types } from 'pg';
 import { Usr, UsrAuth, AuthUsr, Connection } from '@/entity';
+
+// https://github.com/brianc/node-pg-types
+// Number.MAX_SAFE_INTEGER == 9007199254740991
+types.setTypeParser(20, v=>JSON.parse(v));
 
 // code modified from https://node-postgres.com/guides/project-structure
 
@@ -50,17 +54,19 @@ const mapping = {
     const res = usr.uid ?
       await query(`insert into usr(uid,name,avatar) values ($1,$2,$3) returning uid;`,[usr.uid,usr.name,usr.avatar]) :
       await query(`insert into usr(name,avatar) values ($1,$2) returning uid;`,[usr.name,usr.avatar]);
-    return JSON.parse(res.rows[0].uid) as number;
+    //return JSON.parse(res.rows[0].uid) as number;
+    return res.rows[0].uid as number;
   },
   selectUsr: async(uid: number):Promise<Usr>=>{
     const res = await query(`select * from usr where uid=$1;`,[uid]);
-    if(res.rowCount){
-      const usr = res.rows[0];
-      usr.uid = JSON.parse(usr.uid);
-      return usr as Usr;
-    }else{
-      return null;
-    }
+    // if(res.rowCount){
+    //   const usr = res.rows[0];
+    //   usr.uid = JSON.parse(usr.uid);
+    //   return usr as Usr;
+    // }else{
+    //   return null;
+    // }
+    return res.rows[0] as Usr;
   },
   insertUsrAuth: async(v: UsrAuth)=>{
     const res = await query(`insert into usrauth(uid,auth) values ($1,$2);`,[v.uid,JSON.stringify(v.auth)]);
@@ -68,13 +74,14 @@ const mapping = {
   },
   selectUsrAuth: async(uid: number)=>{
     const res = await query(`select * from usrauth where uid=$1;`,[uid]);
-    if(res.rowCount){
-      const usrAuth = res.rows[0];
-      usrAuth.uid = JSON.parse(usrAuth.uid);
-      return usrAuth as UsrAuth;
-    }else{
-      return null;
-    }
+    // if(res.rowCount){
+    //   const usrAuth = res.rows[0];
+    //   usrAuth.uid = JSON.parse(usrAuth.uid);
+    //   return usrAuth as UsrAuth;
+    // }else{
+    //   return null;
+    // }
+    return res.rows[0] as UsrAuth;
   },
   insertAuthUsr: async(v: AuthUsr)=>{
     const res = await query(`insert into authusr(type,identifier,token,uid) values ($1,$2,$3,$4);`,[v.type,v.identifier,v.token,v.uid]);
