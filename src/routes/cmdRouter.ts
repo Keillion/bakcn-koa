@@ -1,5 +1,5 @@
 import Router from 'koa-router';
-import { query } from '@/db';
+import { query, mapping } from '@/db';
 
 const router = new Router({
   prefix: '/cmd'
@@ -20,6 +20,10 @@ router
         stack: ex.stack,
       });
     }
+  })
+  .post('/selectUsrAuth/:uid', async ctx=>{
+    const usrAuth = await mapping.selectUsrAuth(JSON.parse(ctx.params.uid) as number);
+    ctx.body = JSON.stringify(usrAuth);
   })
 ;
 
